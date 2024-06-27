@@ -1,5 +1,4 @@
 # Pimp My Wheels
-**Status**: The project is ongoing and not yet completed. Regular updates and progress details will be posted in this repository.
 
 ## Project Description
 This repository is dedicated to the design and implementation of a database for "Pimp My Wheels," a workshop that not only operates as a traditional garage but also engages in the purchase, restoration, and sale of cars and motorcycles. The project is structured into four key phases and is currently in progress.
@@ -11,9 +10,9 @@ This repository is dedicated to the design and implementation of a database for 
 
 
 ## Components
-- **Schema Design**: Detailing the structure and relationships within the database.
-- **Data Entry Scripts**: Scripts used to populate the database efficiently and consistently.
-- **Data Analysis Tools**: Techniques and tools applied to analyze the data, focusing on sales trends, restoration costs, and operational efficiency.
-- **Report Generation**: Format and tools used for creating reports that visualize and summarize the analysis findings.
+- **Schema Design** ('PimpMyWheelsSchema.vuerd.json'): Detailing the structure and relationships within the database.
+- **Data Entry Scripts** ('main.py'): Scripts used to populate the database efficiently and consistently.
+- **Data Analysis Tools** ('report_PimpMyWheels.qmd'): Techniques and tools applied to analyze the data, focusing on sales trends, restoration costs, and operational efficiency.
+- **Report Generation** ('report_PimpMyWheels.pdf'): Format and tools used for creating reports that visualize and summarize the analysis findings.
 
 This project serves as a practical application of database design principles, data management, and analytical reporting in a business context, particularly within the automotive industry.
