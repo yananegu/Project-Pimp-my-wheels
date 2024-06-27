@@ -14,5 +14,12 @@ This repository is dedicated to the design and implementation of a database for 
 - **Data Entry Scripts** ('main.py'): Scripts used to populate the database efficiently and consistently.
 - **Data Analysis Tools** ('report_PimpMyWheels.qmd'): Techniques and tools applied to analyze the data, focusing on sales trends, restoration costs, and operational efficiency.
 - **Report Generation** ('report_PimpMyWheels.pdf'): Format and tools used for creating reports that visualize and summarize the analysis findings.
+- **Documentation** ('Dokumentacja.docx') : Developing comprehensive project documentation, which includes:
+      - A list of technologies used.
+      - A list of files and their contents.
+      - Instructions for running the project.
+      - The database schema and functional dependency descriptions.
+      - Justification for the database being in BCNF.
+      - A description of the challenges encountered during the project
 
 This project serves as a practical application of database design principles, data management, and analytical reporting in a business context, particularly within the automotive industry.
