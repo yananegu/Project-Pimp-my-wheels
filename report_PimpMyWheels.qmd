@@ -1,0 +1,519 @@
+---
+date: "20240628"
+lang: pl
+title: Raport roczny z wyników pracy warsztatu samochodowego Pimp My Wheels
+authors:
+    - Maria Lubneuskaya
+    - Yana Negulescu
+    - Dzmitry Pihulski
+    - Adrian Galik
+
+format: 
+  pdf:
+    code-line-numbers: true
+    colorlinks: false
+    documentclass: mwart
+    latex-tinytex: false
+    number-sections: true
+    papersize: a4paper
+    pdf-engine: lualatex
+
+callout-appearance: simple
+date-format: long
+highlight-style: pygments
+suppress-bibliography: true
+echo: false
+warning: false
+---
+
+## Wstęp
+
+Niniejszy raport przedstawia roczne wyniki pracy warsztatu samochodowego "Pimp my wheels" za rok 2023. Raport zawiera najważniejsze informacje dotyczące działalności warsztatu, w tym dane finansowe, liczby wykonanych napraw.
+
+W raporcie znajdują się przychody, koszty i zyski warsztatu oraz statystyki dotyczące liczby napraw i innych świadczonych usług.
+
+
+```{python}
+import importlib.util
+import sys
+import os
+import sqlalchemy as sa
+from dotenv import load_dotenv
+from sqlalchemy.sql import text
+from sqlalchemy import func,  extract, cast, Date
+import pandas as pd
+import matplotlib.pyplot as plt
+from IPython.display import Markdown
+from sqlalchemy.orm import aliased
+import calendar
+from tabulate import tabulate
+
+
+from src.models.customer import Customer
+from src.models.vehicle import Vehicle
+from src.models.employee import Employee
+from src.models.equipment import Equipment
+from src.models.inventory import Inventory
+from src.models.service import Service
+from src.models.workshop import Workshop
+from src.models.transaction import Transaction
+
+```
+
+
+```{python}
+#puszczamy main
+spec = importlib.util.spec_from_file_location("main", "main.py")
+main = importlib.util.module_from_spec(spec)
+sys.modules["main"] = main
+spec.loader.exec_module(main)
+```
+
+```{python}
+#połączenie do bazy
+load_dotenv()
+
+url_object = sa.URL.create(
+    drivername="mariadb+mariadbconnector",
+    host="giniewicz.it",
+    username=os.getenv("LOGIN"),
+    password=os.getenv("PASSWORD"),
+    database=os.getenv("BASE"),
+)
+conn = sa.create_engine(url_object)
+Session = sa.orm.sessionmaker(bind=conn)
+session = Session()
+```
+
+
+## Analiza
+### Odsetek naprawianych marek pojazdów
+
+Nasz warsztat obsługuje trzy marki samochodowe: Toyota, Ford i Volkswagen. Poniższy wykres przedstawia odsetek napraw każdej z tych marek w roku 2023.
+
+```{python}
+#Całkowita liczba pojazdów
+total_vehicles = session.query(func.count(Vehicle.id)).scalar()
+
+# Liczba pojazdów dla każdej marki
+brand_counts = session.query(Vehicle.brand, func.count(Vehicle.id)).group_by(Vehicle.brand).all()
+
+# Odsetek
+brands = []
+percentages = []
+
+for brand, count in brand_counts:
+    percentage = (count / total_vehicles) * 100
+    brands.append(brand)
+    percentages.append(round(percentage, 2))
+
+plt.figure(figsize=(10, 6))
+plt.bar(brands, percentages, color='skyblue')
+plt.xlabel('Marka')
+plt.ylabel('Odsetek napraw (%)')
+plt.title('Odsetek napraw różnych marek samochodowych')
+plt.xticks(rotation=45)
+plt.tight_layout()
+plt.show()
+
+Markdown(f"""Odsetek napraw {brands[0]} wynosi {percentages[0]}. Odsetek napraw {brands[1]} wynosi {percentages[1]}. Odsetek napraw {brands[2]} wynosi {percentages[2]}""")
+
+
+```
+
+Widać, że żadna z tych marek nie jest wyraźnie popularniejsza od pozostałych.
+
+### Top-10 najpopularniejszych modelów
+
+Zobaczymy wtedy najpopularniejsze modeli naprawiane w warsztacie.
+
+```{python}
+popular_models = session.query(
+    Vehicle.brand,
+    Vehicle.model,
+    func.count(Vehicle.id).label('count')
+).group_by(Vehicle.brand, Vehicle.model
+).order_by(sa.desc('count')).limit(10).all()
+
+if not popular_models:
+    print("No data found for the query.")
+
+else:
+    df = pd.DataFrame(popular_models, columns=['brand', 'model', 'count'])
+
+    # Rysowanie wykresu słupkowego
+    plt.figure(figsize=(12, 6))
+    plt.barh(df['brand'] + ' ' + df['model'], df['count'], color='skyblue')
+    plt.xlabel('Number of Vehicles')
+    plt.ylabel('Brand and Model')
+    plt.title('Top 10 modelów do naprawy')
+    plt.tight_layout()
+    plt.grid(True)
+    plt.show()
+
+Markdown(f"""Ten wykres przedstawia 10 najpopularniejszych modeli samochodów naprawianych w warsztacie. Liczby na osi poziomej (X) reprezentują liczbę naprawionych pojazdów dla każdego modelu.
+
+Widać, że model samochodu {df['brand'][0] + ' ' + df['model'][0]} był najczęściej naprawianym modelem w warsztacie, osiągając {df['count'][0]} napraw. Pozostałe modele mają nieco mniejszą liczbę napraw, ale wszystkie mieszczą się w przedziale od około 45 do ponad 60 napraw.
+
+Ten rozkład pokazuje, że warsztat regularnie naprawia te 10 modeli samochodów, co może wskazywać na ich popularność wśród klientów warsztatu.""")
+```
+
+
+
+
+### Liczba naprawianych pojazdów w każdym miesiącu pracy warsztatu
+
+Poniższy wykres przedstawia liczbę napraw w warsztacie samochodowym w każdym miesiącu roku. Na osi poziomej (X) znajdują się miesiące, a na osi pionowej (Y) liczba napraw.
+
+```{python}
+
+#Liczba naprawianych pojazdów w każdym miesiącu
+try:
+    monthly_repairs = session.query(
+    extract('month', Service.start_date).label('month'),
+    func.count(Service.id).label('count')
+    ).group_by('month').order_by('month').all()
+
+    if not monthly_repairs:
+        print("No data found for the query.")
+
+    else:
+        df = pd.DataFrame(monthly_repairs, columns=['month', 'count'])
+        df['month'] = df['month'].apply(lambda x: calendar.month_name[int(x)])
+        df['month'] = df['month'].astype(str).str.zfill(2)
+
+        plt.figure(figsize=(12, 6))
+        plt.plot(df['month'].to_numpy(), df['count'].to_numpy(), color='skyblue')
+        plt.xlabel('Miesiąc')
+        plt.ylabel('Liczba napraw')
+        plt.title('Liczba napraw w każdym miesiące')
+        plt.xticks(rotation=45)
+        plt.grid(True)
+        plt.tight_layout()
+        plt.show()
+
+except:
+    print('error')
+```
+
+Na początku roku liczba napraw spada. W środku roku liczba napraw jest zmienna ale utrzymuje się na stabilnie nie małym poziomie.
+
+W szczególności, w cieplejszych miesiącach, można zauważyć  wzrosty w liczbie napraw, co może wskazywać na większą aktywność klientów warsztatu w tych okresach.
+
+### Najlepsze okazje
+
+Niniejsza tabela przedstawia listę dziesięciu najleprzych okazji, czyli pojazdów skupionych i sprzedanych, które przyniosły najwięcej zysku, uwzględniając również ich naprawę.
+
+```{python}
+purchase_value = session.query(Transaction.id, Transaction.value).subquery()
+sale_value = session.query(Transaction.id, Transaction.value).subquery()
+
+# Pobieranie 10 najlepszych okazji
+best_deals = session.query(
+    Vehicle.brand,
+    Vehicle.model,
+    (sale_value.c.value - purchase_value.c.value).label('profit'),
+    Employee.name,
+    Employee.surname
+).join(purchase_value, Vehicle.purchase_id == purchase_value.c.id
+).join(sale_value, Vehicle.sale_id == sale_value.c.id
+).join(Employee, Employee.position == 'MENADŻER'
+).order_by(sa.desc('profit')
+).limit(10).all()
+
+if not best_deals:
+    print("No data found for the query.")
+else:
+    headers = ['Brand', 'Model', 'Zysk', 'Imię Menadżera', 'Nazwisko Menadżera']
+    # Używanie tabulate do drukowania tabeli
+    print(tabulate(best_deals, headers=headers))#, tablefmt='grid'))
+
+manager_sales = session.query(
+        Employee.name,
+        Employee.surname,
+        func.count(Vehicle.sale_id).label('sales_count')
+    ).join(Workshop, Employee.workshop_id == Workshop.id
+    ).join(Vehicle, sa.and_(Employee.workshop_id == Vehicle.workshop_id, Employee.position == 'MENADŻER')
+    ).group_by(Employee.id
+    ).order_by(sa.desc('sales_count')).first()
+
+
+Markdown(f"\nMenedżer z największą liczbą sprzedaży to {manager_sales.name} {manager_sales.surname} z liczbą sprzedaży: {manager_sales.sales_count}")
+```
+
+### Pracownicy: ilość pracowników względem grupy 
+
+```{python}
+employee_counts = session.query(
+    Employee.position,
+    func.count(Employee.id).label('count')
+).group_by(Employee.position).all()
+
+# Konwersja danych do DataFrame dla łatwiejszej manipulacji
+df = pd.DataFrame(employee_counts, columns=['position', 'count'])
+
+# Rysowanie wykresu słupkowego
+plt.figure(figsize=(10, 6))
+plt.bar(df['position'], df['count'], color='skyblue')
+plt.xlabel('Stanowisko')
+plt.ylabel('Liczba Pracowników')
+plt.title('Liczba pracowników względem grupy')
+plt.xticks(rotation=45)
+plt.tight_layout()
+plt.show()
+
+Markdown(f"""Warsztat ma {df['count'][1]} menadżerów oraz {df['count'][0]} mechaników.""")
+```
+
+### Pracownicy: efektywność
+
+Ten wykres przedstawia efektywność pracowników w warsztacie samochodowym, mierzoną liczbą napraw wykonanych przez każdego z nich. Na osi poziomej (X) znajduje się liczba napraw, a na osi pionowej (Y) imiona i nazwiska pracowników.
+
+```{python}
+
+employee_efficiency = session.query(
+Employee.name,
+Employee.surname,
+func.count(Service.id).label('count')
+).join(Service, Employee.id == Service.employee_id
+).group_by(Employee.id
+).order_by(sa.desc('count')).all()
+
+if not employee_efficiency:
+    print("No data found for the query.")
+
+else:
+    df = pd.DataFrame(employee_efficiency, columns=['name', 'surname', 'count'])
+
+    plt.figure(figsize=(12, 6))
+    plt.barh(df['name'] + ' ' + df['surname'], df['count'], color='skyblue')
+    plt.xlabel('Liczba Napraw')
+    plt.ylabel('Pracownicy')
+    plt.title('Efektywność pracowników')
+    plt.tight_layout()
+    plt.grid(True)
+    plt.show()
+
+
+Markdown(f"""Widać, że {df['name'][0] + ' ' + df['surname'][0]} jest najbardziej efektywnym pracownikiem, wykonując {df['count'][0]}. {df['name'][1] + ' ' + df['surname'][1]} i {df['name'][2] + ' ' + df['surname'][2]} również wykonały dużą liczbę napraw. Większość pracowników wykonała powyżej 80 napraw, co świadczy o ich wysokiej efektywności.
+
+Ogólnie, w warsztacie jest kilku pracowników o bardzo wysokiej efektywności, którzy wykonali znacznie więcej napraw niż pozostali.  Warsztat ma stabilny zespół pracowników, którzy regularnie wykonują dużą liczbę napraw, co świadczy o ich zaangażowaniu i profesjonalizmie.""")
+```
+
+
+### Pracownicy: największe zyski dla warsztatu
+
+Sprawdżmy teraz, którzy pracownicy są najbardziej efektywni w generowaniu zysków dla warsztatu poprzez wykonane naprawy, co może być kluczowe przy ocenie ich wydajności i planowaniu przyszłych działań operacyjnych.
+
+Na poniższym wykresie na osi poziomej (X) znajduje się zysk w PLN, a na osi pionowej (Y) imiona i nazwiska pracowników.
+
+```{python}
+
+employee_profits = session.query(
+    Employee.name,
+    Employee.surname,
+    func.sum(Transaction.value).label('total_income')
+).join(Service, Employee.id == Service.employee_id
+).join(Transaction, Service.transaction_id == Transaction.id
+).filter(Transaction.transaction_type == 'income'
+).group_by(Employee.id
+).order_by(sa.desc('total_income')).all()
+
+if not employee_profits:
+    print("No data found for the query.")
+
+else:
+    df = pd.DataFrame(employee_profits, columns=['name', 'surname', 'total_income'])
+
+    plt.figure(figsize=(12, 6))
+    plt.barh(df['name'] + ' ' + df['surname'], df['total_income'], color='skyblue')
+    plt.xlabel('Zysk (PLN)')
+    plt.ylabel('Pracownicy')
+    plt.title('Pracownicy generujące największy zysk')
+    plt.tight_layout()
+    plt.grid(True)
+    plt.show()
+
+Markdown(f'''Widać, że {df['name'][0] + ' ' + df['surname'][0]} wygenerował największy zysk, wynoszący {df['total_income'][0]}. Inni pracownicy, również osiągnęli wysokie wyniki, generując zyski powyżej 40,000 PLN.
+''')
+```
+
+
+### Naprawy: średni czas trwania w każdej placówce
+Znając średni czas naprawy, warsztat może lepiej planować zasoby, takie jak zapasy części zamiennych, harmonogramy pracowników oraz obciążenie pracą. To pomaga w optymalizacji pracy i unikanie przestojów.
+
+```{python}
+average_durations = session.query(
+    Employee.workshop_id,
+    func.avg(cast(Service.end_date, Date) - cast(Service.start_date, Date)).label('average_duration')
+).join(Employee, Service.employee_id == Employee.id
+).group_by(Employee.workshop_id).all()
+
+df = pd.DataFrame(average_durations, columns=['workshop_id', 'average_duration'])
+
+df['average_duration'] = round(df['average_duration'], 2)
+
+Markdown(f"""Średni czas naprawy w placówce {df['workshop_id'][0]} wynosi {df['average_duration'][0]} dni. Średni czas naprawy w placówce {df['workshop_id'][1]} wynosi {df['average_duration'][1]} dni.""")
+```
+
+Placówka 1 jest bardziej efektywna pod względem czasu realizacji napraw w porównaniu do placówki 2. Może to wynikać z lepszej organizacji pracy, bardziej doświadczonego personelu lub dostępności niezbędnych zasobów w placówce 1.
+
+### Naprawy: najpopularniejsze usługi warsztatu
+
+Niniejszy wykres przedstawia najbardziej popularne usługi warsztatu samochodowego, mierzone liczbą wykonanych napraw. Na osi poziomej znajduje się liczba wykonanych usług, a na osi pionowej poszczególne rodzaje usług.
+
+```{python}
+popular_services = session.query(
+    Service.description,
+    func.count(Service.id).label('count')
+).join(Transaction, Service.transaction_id == Transaction.id
+).filter(Transaction.transaction_type == 'income'
+).group_by(Service.description
+).order_by(sa.desc('count')).all()
+
+if not popular_services:
+    print("No data found for the query.")
+
+else:
+    df = pd.DataFrame(popular_services, columns=['description', 'count'])
+
+    plt.figure(figsize=(12, 6))
+    plt.barh(df['description'], df['count'], color='skyblue')
+    plt.xlabel('Liczba usług')
+    plt.ylabel('Usługa')
+    plt.title('Najbardziej popularne usługi')
+    plt.tight_layout()
+    plt.grid(True)
+    plt.show()
+
+Markdown(f"""Na wykresie można zauważyć, że jedną z najczęściej wykonywanych usług jest wymiana oleju i płynów, co jest typową i regularnie wykonywaną czynnością konserwacyjną w pojazdach. 
+
+Kolejne popularne usługi to przeglądy, wymiana układów hamulcowych oraz geometria zawieszenia. Te usługi również wskazują na dbałość klientów o bezpieczeństwo i prawidłowe funkcjonowanie pojazdów.""")
+```
+
+
+### Naprawy: najbardziej dochodowe usługi warsztatu
+
+Poniższy wykres przedstawia usługi warsztatu samochodowego, które generują największy zysk. Na osi poziomej (X) znajduje się zysk w PLN, a na osi pionowej (Y) różne rodzaje usług oferowanych przez warsztat.
+```{python}
+profitable_services = session.query(
+    Service.description,
+    func.sum(Transaction.value).label('total_income')
+).join(Transaction, Service.transaction_id == Transaction.id
+).filter(Transaction.transaction_type == 'income'
+).group_by(Service.description
+).order_by(sa.desc('total_income')).all()
+
+if not profitable_services:
+    print("No data found for the query.")
+
+else:
+    df = pd.DataFrame(profitable_services, columns=['description', 'total_income'])
+
+    plt.figure(figsize=(12, 6))
+    plt.barh(df['description'], df['total_income'], color='skyblue')
+    plt.xlabel('Zysk (PLN)')
+    plt.ylabel('Usługa')
+    plt.title('Usługi generujące największy zysk')
+    plt.tight_layout()
+    plt.grid(True)
+    plt.show()
+
+Markdown(f"""Widać, że najwięcej zysku generują usługi związane z bardziej skomplikowanymi i kosztownymi naprawami, takimi jak wymiana układu hamulcowego, amortyzatorów, oraz prace związane z elektroniką. Natomiast podstawowe usługi konserwacyjne, takie jak wymiana oleju i przeglądy, również przyczyniają się znacznie do zysków, ze względu na ich częstotliwość wykonywania.""")
+```
+
+### Miesięczne koszty na zakup sprzętu
+Ten wykres przedstawia koszty zakupu sprzętu przez warsztat samochodowy w każdym miesiącu roku. Na osi poziomej (X) znajdują się miesiące, a na osi pionowej (Y) koszty w PLN.
+```{python}
+
+monthly_costs = session.query(
+extract('month', Inventory.delivery_date).label('month'),
+func.sum(Equipment.cost).label('total_cost')
+).join(Equipment, Inventory.equipment_id == Equipment.id
+).group_by('month'
+).order_by('month').all()
+
+
+if not monthly_costs:
+    print("No data found for the query.")
+
+else:
+    df = pd.DataFrame(monthly_costs, columns=['month', 'total_cost'])
+    df['month'] = df['month'].apply(lambda x: calendar.month_name[int(x)])
+    
+
+    plt.figure(figsize=(12, 6))
+    plt.plot(df['month'].astype(str).str.zfill(2).to_numpy(), df['total_cost'].to_numpy(), color='skyblue')
+    plt.xlabel('Miesiąc')
+    plt.ylabel('Koszty (PLN)')
+    plt.title('Koszty sprzętu przez każdy miesiąc')
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+    plt.show()
+
+Markdown(f"""Na początku roku, w styczniu, widać znaczący skok kosztów, sięgający {df['total_cost'][0]}. Taki wysoki koszt jest związany z dużym zakupem sprzętu na początku roku do działalności operacyjnej na cały rok.
+
+W kolejnych miesiącach koszty znacząco spadają. Odbywa się tylko zakup brakujących do napraw części.
+""")
+
+```
+
+
+### Klienci: liczba nowych klientów każdy miesiąc
+
+Poniższy wykres przedstawia liczbę nowych klientów przychodzących do warsztatu samochodowego w każdym miesiącu roku. Na osi poziomej (X) znajdują się miesiące, a na osi pionowej (Y) liczba nowych klientów.
+```{python}
+new_customers = session.query(
+    extract('month', Customer.account_creation_date).label('month'),
+    func.count(Customer.id).label('count')
+).group_by('month'
+).order_by('month').all()
+
+
+if not new_customers:
+    print("No data found for the query.")
+
+else:
+    df = pd.DataFrame(new_customers, columns=['month', 'count'])
+
+    df['month'] = df['month'].apply(lambda x: calendar.month_name[int(x)])
+    
+    plt.figure(figsize=(12, 6))
+    plt.plot(df['month'].astype(str).str.zfill(2).to_numpy(), df['count'].to_numpy(), color='skyblue')
+    plt.xlabel('Miesiąc')
+    plt.ylabel('Liczba nowych klientów')
+    plt.title('Przychód klientów przez każdy miesiąc')
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+    plt.grid(True)
+    plt.show()
+
+```
+
+Widać, że liczba nowych klientów jest zmienna w ciągu roku, z kilkoma wyraźnymi szczytami i spadkami.
+
+### Klienci: średni czas istnienia konta klienta
+
+```{python}
+average_account_duration = session.query(
+    func.avg(
+        cast(Customer.account_deletion_date, Date) - cast(Customer.account_creation_date, Date)
+    ).label('average_duration')
+).scalar()
+
+average_account_duration = round(average_account_duration, 1)
+
+Markdown(f"""Sredni czas istnienia konta klienta wynosi {average_account_duration} dni.""")
+```
+
+Taki średni czas wskazuje na wysoką lojalność klientów. Klienci, którzy zakładają konto w warsztacie, są skłonni korzystać z jego usług przez stosunkowo długi okres. To może świadczyć o wysokim poziomie zadowolenia z obsługi i jakości świadczonych usług. Warsztat skutecznie buduje zaufanie i utrzymuje relacje z klientami poprzez regularne przeglądy, naprawy i inne usługi.
+
+
+## Podsumowanie
+
+Warsztat samochodowy wykazuje wysoką efektywność operacyjną i znaczące zyski generowane przez kluczowych pracowników. Popularne i dochodowe usługi obejmują zarówno podstawowe konserwacje, jak i bardziej skomplikowane naprawy. Zarządzanie kosztami sprzętu i zrozumienie sezonowych trendów klientów może pomóc w dalszym rozwoju i zwiększeniu rentowności warsztatu. Wysoka lojalność klientów jest dowodem na jakość usług świadczonych przez warsztat, co stanowi solidną podstawę do budowania długotrwałych relacji z klientami.
+
+
+```{python}
+session.commit()
+```
