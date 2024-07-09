@@ -14,7 +14,8 @@ This repository is dedicated to implementation of a database for "Pimp My Wheels
 
 **Data Entry Scripts** ('main.py'): Scripts used to populate the database efficiently and consistently. Is using:
 - Folder 'data' that contains data for the project.
-- Folder 'src' for basic database generation. 
+- Folder 'src' for basic database generation.
+  
 The exact operation and relationship of all files is described in the file 'documentation.docx'.
 
 **Data Analysis Tools** ('report_PimpMyWheels.qmd'): Techniques and tools applied to analyze and visualize  data, focusing on sales trends, restoration costs, and operational efficiency.
