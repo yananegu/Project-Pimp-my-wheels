@@ -1,0 +1,86 @@
+nazwa,typ,cena
+Silnik V8,Część,25000
+Silnik R4,Część,10000
+Alternator,Część,700
+Akumulator,Część,400
+Amortyzator przedni,Część,500
+Amortyzator tylny,Część,450
+Chłodnica,Część,600
+Klimatyzacja,Część,3500
+Komputer diagnostyczny,Narzędzie,8000
+Koło zapasowe,Część,300
+Klocki hamulcowe,Część,200
+Lampy przednie,Część,800
+Lampy tylne,Część,700
+Lusterko boczne,Część,150
+Olej silnikowy,Część,150
+Pasek rozrządu,Część,100
+Pompa paliwa,Część,250
+Pompa wodna,Część,200
+Przewody zapłonowe,Część,100
+Przewody hamulcowe,Część,150
+Sprzęgło,Część,600
+Skrzynia biegów,Część,4000
+Świece zapłonowe,Część,50
+Turbosprężarka,Część,3000
+Uszczelka pod głowicą,Część,100
+Wahacz,Część,350
+Wycieraczki,Część,40
+Zawór EGR,Część,500
+Zderzak przedni,Część,800
+Zderzak tylny,Część,750
+Czujnik ABS,Część,250
+Czujnik temperatury,Część,60
+Filtr powietrza,Część,30
+Filtr oleju,Część,20
+Filtr kabinowy,Część,25
+Filtr paliwa,Część,30
+Katalizator,Część,1200
+Łożysko koła,Część,100
+Nagrzewnica,Część,200
+Pasek klinowy,Część,50
+Przegub napędowy,Część,150
+Regulator napięcia,Część,80
+Rozrusznik,Część,400
+Silnik elektryczny,Część,3500
+Sprężyna zawieszenia,Część,250
+Szyba czołowa,Część,600
+Szyba tylna,Część,500
+Szyba boczna,Część,450
+Tarcze hamulcowe,Część,300
+Tłumik,Część,350
+Układ wydechowy,Część,800
+Zawieszenie pneumatyczne,Część,1500
+Zawór recyrkulacji spalin,Część,600
+Zestaw naprawczy,Część,200
+Żarówka H4,Część,15
+Żarówka LED,Część,30
+Żarówka xenonowa,Część,150
+Pompa wspomagania,Część,500
+Przewody klimatyzacji,Część,300
+Rura wydechowa,Część,150
+Osłona przeciwsłoneczna,Część,80
+Pasy bezpieczeństwa,Część,120
+Narzędzie diagnostyczne,Narzędzie,1500
+Podnośnik hydrauliczny,Narzędzie,1000
+Wkrętarka akumulatorowa,Narzędzie,600
+Klucz dynamometryczny,Narzędzie,300
+Sprężarka powietrza,Narzędzie,2500
+Tester akumulatora,Narzędzie,200
+Wózek narzędziowy,Narzędzie,800
+Zestaw kluczy nasadowych,Narzędzie,300
+Zestaw wierteł,Narzędzie,200
+Zestaw nasadek,Narzędzie,300
+Zestaw imbusów,Narzędzie,100
+Narzędzie do geometrii kół,Narzędzie,50
+Ładowarka akumulatorów,Narzędzie,500
+Miernik grubości lakieru,Narzędzie,250
+Tester diagnostyczny,Narzędzie,150
+Narzędzie do ustawiania świateł,Narzędzie,800
+Prasa hydrauliczna,Narzędzie,250
+Stetoskop samochodowy,Narzędzie,150
+Tester ciśnienia,Narzędzie,500
+Waga do kół,Narzędzie,200
+Zestaw do odsysania oleju,Narzędzie,350
+Zestaw do pomiaru ciśnienia,Narzędzie,100
+Zestaw do regeneracji reflektorów,Narzędzie,80
