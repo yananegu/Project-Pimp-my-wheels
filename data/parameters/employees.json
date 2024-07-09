@@ -1,0 +1,12 @@
+{
+  "manager": {
+    "min_salary": 5000,
+    "avg_salary": 6450,
+    "max_salary": 10210
+  },
+  "mechanic": {
+    "min_salary": 4300,
+    "avg_salary": 5490,
+    "max_salary": 9000
+  }
+}
