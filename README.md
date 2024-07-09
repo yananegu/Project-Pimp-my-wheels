@@ -23,11 +23,11 @@ The exact operation and relationship of all files is described in the file 'docu
 **Report Generation** ('report_PimpMyWheels.pdf'): report after compiling 'report_PimpMyWheels.qmd'. 
 
 **Documentation** ('documentation.docx') includes:
-      - A list of technologies used.
-      - A list of files and their contents.
-      - Instructions for running the project.
-      - The database schema and functional dependency descriptions.
-      - Justification for the database being in BCNF.
-      - A description of the challenges encountered during the project
+- A list of technologies used.
+- A list of files and their contents.
+- Instructions for running the project.
+- The database schema and functional dependency descriptions.
+- Justification for the database being in BCNF.
+- A description of the challenges encountered during the project
 
 This project serves as a practical application of database design principles, data management, and analytical reporting in a business context, particularly within the automotive industry.
