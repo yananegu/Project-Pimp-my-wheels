@@ -11,11 +11,17 @@ This repository is dedicated to implementation of a database for "Pimp My Wheels
 
 ## Components
 **Schema Design** ('PimpMyWheelsSchema.vuerd.json').
-**Data Entry Scripts** ('main.py'): Scripts used to populate the database efficiently and consistently. 
 
-**Data Analysis Tools** ('report_PimpMyWheels.qmd'): Techniques and tools applied to analyze the data, focusing on sales trends, restoration costs, and operational efficiency.
-**Report Generation** ('report_PimpMyWheels.pdf'): Format and tools used for creating reports that visualize and summarize the analysis findings.
-**Documentation** ('ddocumentation.docx') includes:
+**Data Entry Scripts** ('main.py'): Scripts used to populate the database efficiently and consistently. Is using:
+- Folder 'data' that contains data for the project.
+- Folder 'src' for basic database generation. 
+The exact operation and relationship of all files is described in the file 'documentation.docx'.
+
+**Data Analysis Tools** ('report_PimpMyWheels.qmd'): Techniques and tools applied to analyze and visualize  data, focusing on sales trends, restoration costs, and operational efficiency.
+
+**Report Generation** ('report_PimpMyWheels.pdf'): report after compiling 'report_PimpMyWheels.qmd'. 
+
+**Documentation** ('documentation.docx') includes:
       - A list of technologies used.
       - A list of files and their contents.
       - Instructions for running the project.
