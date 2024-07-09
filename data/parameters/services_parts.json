@@ -1,0 +1,93 @@
+[
+  {
+    "name": "SILNIK: kompleksowa naprawa",
+    "part": "Tłoki",
+    "part_cost": 1200,
+    "work_cost": 5000,
+    "probability": 0.005
+  },
+  {
+    "name": "PRZEGLĄD",
+    "part": "Sprzęt do przeglądu",
+    "part_cost": 0,
+    "work_cost": 300,
+    "probability": 0.15
+  },
+  {
+    "name": "ZWYKŁA_NAPRAWA",
+    "part": "Sprzęt do naprawy",
+    "part_cost": 0,
+    "work_cost": 300,
+    "probability": 0.1
+  },
+  {
+    "name": "ELEKTRONIKA: komputerowe testy silników i elektroniki samochodowej",
+    "part": "Moduł sterujący",
+    "part_cost": 800,
+    "work_cost": 1500,
+    "probability": 0.04
+  },
+  {
+    "name": "UKŁAD_KIEROWNICZY: wymiana",
+    "part": "Przekładnia kierownicza",
+    "part_cost": 700,
+    "work_cost": 1200,
+    "probability": 0.02
+  },
+  {
+    "name": "UKŁAD_HAMULCOWY: wymiana",
+    "part": "Klocki hamulcowe",
+    "part_cost": 150,
+    "work_cost": 400,
+    "probability": 0.17
+  },
+  {
+    "name": "UKŁAD_WYDECHOWY: wymiana",
+    "part": "Tłumik",
+    "part_cost": 250,
+    "work_cost": 600,
+    "probability": 0.03
+  },
+  {
+    "name": "KLIMATYZACJA: obsługa i napełnienie",
+    "part": "Filtr kabinowy",
+    "part_cost": 60,
+    "work_cost": 200,
+    "probability": 0.1
+  },
+  {
+    "name": "SPRZĘGŁO: wymiana",
+    "part": "Tarcza sprzęgła",
+    "part_cost": 400,
+    "work_cost": 1000,
+    "probability": 0.01
+  },
+  {
+    "name": "ROZRZĄD: wymiana",
+    "part": "Pasek rozrządu",
+    "part_cost": 150,
+    "work_cost": 800,
+    "probability": 0.015
+  },
+  {
+    "name": "AMORTYZATORY: wymiana",
+    "part": "Amortyzator",
+    "part_cost": 300,
+    "work_cost": 800,
+    "probability": 0.05
+  },
+  {
+    "name": "OLEJ_I_PŁYNY: wymiana",
+    "part": "Olej silnikowy",
+    "part_cost": 100,
+    "work_cost": 200,
+    "probability": 0.19
+  },
+  {
+    "name": "GEOMETRIA_3D: sprawdzanie i ustawianie zbieżności zawieszenia",
+    "part": "Sprzęt do ustawienia zbiżności",
+    "part_cost": 0,
+    "work_cost": 150,
+    "probability": 0.12
+  }
+]
