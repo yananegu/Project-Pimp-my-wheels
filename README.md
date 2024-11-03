@@ -1,7 +1,7 @@
 # Pimp My Wheels
 
 ## Project Description
-This repository is dedicated to implementation of a database for "Pimp My Wheels," a workshop that not only operates as a traditional garage but also engages in the purchase, restoration, and sale of cars and motorcycles. The project is structured into four key phases and is currently in progress.
+This repository is dedicated to implementation of a database for "Pimp My Wheels," a workshop that not only operates as a traditional garage but also engages in the purchase, restoration, and sale of cars and motorcycles. The project is structured into four key phases:
 
 1. **Creation of the Database Schema**: Crafting a structured database schema tailored to the needs of the automotive and motorcycle sales and restoration business.
 2. **Scripted Database Population**: Developing scripts for populating the database with relevant data to simulate real-world operations.
